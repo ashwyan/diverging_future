@@ -1,69 +1,64 @@
 package com.diverging.futures.ui.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import com.diverging.futures.ui.components.LogoIcon
-import coil.ImageLoader
-import coil.compose.AsyncImage
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
 
 @Composable
-fun ConceptScreen(onContinue: () -> Unit, onSkip: () -> Unit, onBack: () -> Unit) {
+fun ConceptScreen(onContinue: () -> Unit, onSkip: () -> Unit) {
     Scaffold(
         topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-                LogoIcon(modifier = Modifier.size(32.dp))
+                LogoIcon(modifier = Modifier.size(40.dp))
                 TextButton(onClick = onSkip) {
-                    Text("Skip", color = Color.Gray)
+                    Text("Skip", color = Color(0xFF4A5565), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 }
             }
         },
         bottomBar = {
-            Button(
-                onClick = onContinue,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp)
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD9FF00)),
-                shape = RoundedCornerShape(28.dp)
+                    .background(Color.White)
+                    .padding(top = 25.dp, start = 24.dp, end = 24.dp)
             ) {
-                Text(
-                    text = "Continue",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
+                Button(
+                    onClick = onContinue,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC8FF00)),
+                    shape = RoundedCornerShape(33554432.dp)
+                ) {
+                    Text(
+                        text = "Continue",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -71,68 +66,78 @@ fun ConceptScreen(onContinue: () -> Unit, onSkip: () -> Unit, onBack: () -> Unit
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
+            
             Text(
                 text = "Concept",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                color = Color(0xFF0A0A0A)
             )
+            
             Text(
                 text = "Cone of Possibility",
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                modifier = Modifier.padding(top = 8.dp)
+                textAlign = TextAlign.Center,
+                color = Color(0xFF0A0A0A),
+                modifier = Modifier.padding(top = 12.dp)
             )
+            
             Text(
                 text = "Dunne & Raby, 2013",
                 fontSize = 14.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 4.dp)
+                textAlign = TextAlign.Center,
+                color = Color(0xFF4A5565),
+                modifier = Modifier.padding(top = 8.dp)
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             
-            ConeOfPossibilityDiagram(modifier = Modifier.size(300.dp))
+            Box(modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp, max = 300.dp).padding(horizontal = 16.dp)) {
+                ConeOfPossibilityDiagram(modifier = Modifier.fillMaxSize())
+            }
 
-            Spacer(modifier = Modifier.height(48.dp))
-
-            Text(
-                text = "This app is rooted in speculative design, or \"what if\" scenarios, to rethink the world through wider lenses. Anthony Dunne and Fiona Raby’s Cone of Possibility is a design tool that maps future scenarios into four categories:",
-                fontSize = 15.sp,
-                color = Color.DarkGray,
-                lineHeight = 22.sp
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Column(modifier = Modifier.fillMaxWidth()) {
-                ConceptCategoryItem(Color(0xFFA8D900), "Possible", "the widest space of critical imagination")
-                ConceptCategoryItem(Color(0xFF5E947A), "Plausible", "near-future visions of what could happen")
-                ConceptCategoryItem(Color(0xFFD17F64), "Probable", "what will likely happen without intervention")
-                ConceptCategoryItem(Color(0xFFC2A13D), "Preferable", "the middle ground for designers to play in")
+                Text(
+                    text = "This app is rooted in speculative design, or \"what if\" scenarios, to rethink the world through wider lenses. Anthony Dunne and Fiona Raby’s Cone of Possibility is a design tool that maps future scenarios into four categories:",
+                    fontSize = 14.sp,
+                    color = Color(0xFF364153),
+                    lineHeight = 23.sp
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                ConceptCategoryDetail(Color(0xFF6B8E00), "Possible", "the widest space of critical imagination")
+                ConceptCategoryDetail(Color(0xFF5C8C6E), "Plausible", "near-future visions of what could happen")
+                ConceptCategoryDetail(Color(0xFFC4785A), "Probable", "what will likely happen without intervention")
+                ConceptCategoryDetail(Color(0xFFB8922A), "Preferable", "the middle ground for designers to play in")
             }
+            
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-fun ConceptCategoryItem(color: Color, name: String, description: String) {
+fun ConceptCategoryDetail(color: Color, name: String, description: String) {
     Row(modifier = Modifier.padding(vertical = 4.dp)) {
         Text(
             text = "$name — ",
             color = color,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal
         )
         Text(
             text = description,
-            color = Color.Gray,
-            fontSize = 14.sp
+            color = color,
+            fontSize = 12.sp
         )
     }
 }
@@ -140,57 +145,65 @@ fun ConceptCategoryItem(color: Color, name: String, description: String) {
 @Composable
 fun ConeOfPossibilityDiagram(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
-        val startX = 20.dp.toPx()
-        val centerY = size.height / 2
-        val endX = size.width - 60.dp.toPx()
-        val coneHeight = 200.dp.toPx()
-
-        // Possible (Widest - Light Greenish)
-        val possiblePath = Path().apply {
-            moveTo(startX, centerY)
-            lineTo(endX, centerY - coneHeight / 2)
-            lineTo(endX, centerY + coneHeight / 2)
-            close()
-        }
-        drawPath(possiblePath, Color(0xFFD9FF00).copy(alpha = 0.3f), style = Fill)
-
-        // Plausible (Medium - Greenish)
-        val plausiblePath = Path().apply {
-            moveTo(startX, centerY)
-            lineTo(endX, centerY - coneHeight * 0.35f)
-            lineTo(endX, centerY + coneHeight * 0.35f)
-            close()
-        }
-        drawPath(plausiblePath, Color(0xFF5E947A).copy(alpha = 0.4f), style = Fill)
-
-        // Probable (Thinner - Brownish)
-        val probablePath = Path().apply {
-            moveTo(startX, centerY)
-            lineTo(endX, centerY)
-            lineTo(endX, centerY + coneHeight * 0.25f)
-            close()
-        }
-        drawPath(probablePath, Color(0xFFD17F64).copy(alpha = 0.4f), style = Fill)
-
-        // Preferable (Small slice - Yellowish)
-        val preferablePath = Path().apply {
-            moveTo(startX, centerY)
-            lineTo(endX, centerY + coneHeight * 0.1f)
-            lineTo(endX, centerY + coneHeight * 0.25f)
-            close()
-        }
-        drawPath(preferablePath, Color(0xFFC2A13D).copy(alpha = 0.4f), style = Fill)
-
-        // Labels
-        // (In a real implementation, we'd use drawText or similar, but for now placeholders)
+        val startX = size.width * 0.08f
+        val centerY = size.height * 0.5f
         
-        // Present dot
-        drawCircle(Color.Black, 6.dp.toPx(), Offset(startX, centerY))
-    }
-}
+        // Colors and Gradients from CSS
+        val colorProbable = Color(0xFFC4785A)
+        val colorPreferable = Color(0xFFB8922A)
+        val colorPlausible = Color(0xFF5C8C6E)
+        val colorPossible = Color(0xFFC8FF00)
 
-@Preview(showBackground = true)
-@Composable
-fun ConceptScreenPreview() {
-    ConceptScreen(onContinue = {}, onSkip = {}, onBack = {})
+        // Possible (Top-most)
+        drawPath(
+            path = Path().apply {
+                moveTo(startX, centerY)
+                lineTo(size.width * 0.75f, size.height * 0.1f)
+                lineTo(size.width * 0.75f, size.height * 0.5f)
+                close()
+            },
+            brush = Brush.horizontalGradient(listOf(colorPossible.copy(0.6f), colorPossible.copy(0.3f)))
+        )
+        
+        // Plausible
+        drawPath(
+            path = Path().apply {
+                moveTo(startX, centerY)
+                lineTo(size.width * 0.7f, size.height * 0.26f)
+                lineTo(size.width * 0.7f, size.height * 0.5f)
+                close()
+            },
+            brush = Brush.horizontalGradient(listOf(colorPlausible.copy(0.6f), colorPlausible.copy(0.3f)))
+        )
+        
+        // Probable
+        drawPath(
+            path = Path().apply {
+                moveTo(startX, centerY)
+                lineTo(size.width * 0.7f, size.height * 0.74f)
+                lineTo(size.width * 0.7f, size.height * 0.5f)
+                close()
+            },
+            brush = Brush.horizontalGradient(listOf(colorProbable.copy(0.6f), colorProbable.copy(0.3f)))
+        )
+        
+        // Preferable
+        drawPath(
+            path = Path().apply {
+                moveTo(startX, centerY)
+                lineTo(size.width * 0.75f, size.height * 0.9f)
+                lineTo(size.width * 0.75f, size.height * 0.5f)
+                close()
+            },
+            brush = Brush.horizontalGradient(listOf(colorPreferable.copy(0.6f), colorPreferable.copy(0.3f)))
+        )
+
+        // Present line
+        drawLine(
+            color = Color(0xFF2A2A2A),
+            start = Offset(startX, centerY - 10),
+            end = Offset(startX, centerY + 10),
+            strokeWidth = 2.dp.toPx()
+        )
+    }
 }
