@@ -42,7 +42,7 @@ The project currently focuses on sites within the **UC Berkeley** area, specific
 ### Installation
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/DivergingFutures.git
+    git clone https://github.com/ashwyan/DivergingFutures.git
     ```
 2.  Open the project in Android Studio.
 3.  Sync Gradle and build the project.
