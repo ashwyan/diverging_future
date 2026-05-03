@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -234,6 +236,33 @@ fun ArViewContent(
                                 .padding(horizontal = 20.dp, vertical = 10.dp)
                         )
                     }
+                }
+            }
+
+            // Visual Filter (Triangle/Cone) - Placed here to ensure it's on top of AR and scanning overlays
+            Box(modifier = Modifier.fillMaxSize()) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val width = size.width
+                    val height = size.height
+
+                    val path = Path().apply {
+                        moveTo(width / 2f, height)
+                        lineTo(-width * 0.2f, -height * 0.1f)
+                        lineTo(width * 1.2f, -height * 0.1f)
+                        close()
+                    }
+
+                    drawPath(
+                        path = path,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                selectedLensType.color.copy(alpha = 0.5f),
+                                selectedLensType.color.copy(alpha = 0.0f)
+                            ),
+                            startY = height,
+                            endY = 0f
+                        )
+                    )
                 }
             }
         } else {
