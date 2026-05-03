@@ -18,7 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.clip
 import com.diverging.futures.ui.components.LogoIcon
+import com.diverging.futures.ui.components.VideoPlayer
+import com.diverging.futures.R
 
 @Composable
 fun ConceptScreen(onContinue: () -> Unit, onSkip: () -> Unit) {
@@ -79,6 +82,17 @@ fun ConceptScreen(onContinue: () -> Unit, onSkip: () -> Unit) {
                 textAlign = TextAlign.Center,
                 color = Color(0xFF0A0A0A)
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // MP4 Logo Video
+            // Note: Place your diverging_logo.mp4 file in app/src/main/res/raw/
+            VideoPlayer(
+                videoResId = R.raw.diverging_logo,
+                modifier = Modifier.size(200.dp).clip(RoundedCornerShape(16.dp))
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
             
             Text(
                 text = "Cone of Possibility",
@@ -97,12 +111,12 @@ fun ConceptScreen(onContinue: () -> Unit, onSkip: () -> Unit) {
             )
 
             Spacer(modifier = Modifier.height(32.dp))
-            
-            Box(modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp, max = 300.dp).padding(horizontal = 16.dp)) {
-                ConeOfPossibilityDiagram(modifier = Modifier.fillMaxSize())
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
+//
+//            Box(modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp, max = 300.dp).padding(horizontal = 16.dp)) {
+//                ConeOfPossibilityDiagram(modifier = Modifier.fillMaxSize())
+//            }
+//
+//            Spacer(modifier = Modifier.height(32.dp))
 
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(

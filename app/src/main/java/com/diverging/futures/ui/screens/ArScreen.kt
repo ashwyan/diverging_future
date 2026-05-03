@@ -7,7 +7,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,7 +37,10 @@ import com.diverging.futures.ui.components.LensTabBar
 import com.diverging.futures.ui.components.LogoIcon
 import com.google.android.filament.LightManager
 import com.google.ar.core.Anchor
+import com.google.ar.core.Config
+import com.google.ar.core.InstantPlacementPoint
 import com.google.ar.core.Plane
+import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import io.github.sceneview.ar.ARSceneView
 import io.github.sceneview.ar.arcore.getUpdatedPlanes
@@ -111,7 +112,10 @@ fun ArViewContent(
     // Stable instances
     val cameraPositionProvider = remember(cameraNode) { { cameraNode.worldPosition } }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val screenWidth = constraints.maxWidth.toFloat()
+        val screenHeight = constraints.maxHeight.toFloat()
+        
         var isGroundDetected by remember { mutableStateOf(false) }
         var groundAnchor by remember { mutableStateOf<Anchor?>(null) }
 
@@ -121,19 +125,35 @@ fun ArViewContent(
                 engine = engine,
                 cameraNode = cameraNode,
                 planeRenderer = true,
-                onSessionUpdated = { session, frame ->
-                    if (!isGroundDetected) {
-                        val planes = frame.getUpdatedPlanes()
-                        if (planes.any { it.trackingState == TrackingState.TRACKING }) {
-                            isGroundDetected = true
-                        }
+                sessionConfiguration = { session, config ->
+                    // Enable Depth API for better stability on reflective/glossy surfaces
+                    if (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
+                        config.depthMode = Config.DepthMode.AUTOMATIC
                     }
+                    // Enable Instant Placement to reduce "drifting" before full plane detection
+                    config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
+                    config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
+                    
+                    // Improve focus and light estimation for outdoor/bright environments
+                    config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
+                    config.focusMode = Config.FocusMode.AUTO
+                },
+                onSessionUpdated = { session, frame ->
+                    if (groundAnchor == null) {
+                        // Perform hit test in the center of the screen for more predictable placement
+                        val hitResults = frame.hitTest(screenWidth / 2f, screenHeight / 2f)
+                        
+                        // Prioritize real planes, then fall back to Instant Placement points
+                        val hitResult = hitResults.firstOrNull { 
+                            val trackable = it.trackable
+                            trackable is Plane && trackable.isPoseInPolygon(it.hitPose)
+                        } ?: hitResults.firstOrNull { 
+                            it.trackable is InstantPlacementPoint 
+                        }
 
-                    if (isGroundDetected && groundAnchor == null) {
-                        val planes = session.getAllTrackables(Plane::class.java)
-                        val plane = planes.firstOrNull { it.trackingState == TrackingState.TRACKING }
-                        if (plane != null) {
-                            groundAnchor = plane.createAnchor(plane.centerPose)
+                        if (hitResult != null) {
+                            groundAnchor = hitResult.createAnchor()
+                            isGroundDetected = true
                         }
                     }
                 }
@@ -157,8 +177,8 @@ fun ArViewContent(
                         poppyBitmap?.let { bitmap ->
                             BillboardNode(
                                 bitmap = bitmap,
-                                widthMeters = 2.0f,
-                                position = Position(y = 0.5f),
+                                widthMeters = 4.0f,
+                                position = Position(y = 0.75f),
                                 cameraPositionProvider = cameraPositionProvider
                             ) {
                                 SideEffect {
@@ -170,8 +190,8 @@ fun ArViewContent(
                         bridgeBitmap?.let { bitmap ->
                             BillboardNode(
                                 bitmap = bitmap,
-                                widthMeters = 3.0f,
-                                position = Position(y = 0.5f),
+                                widthMeters = 6.0f,
+                                position = Position(y = 1.0f),
                                 cameraPositionProvider = cameraPositionProvider
                             ) {
                                 SideEffect {
@@ -183,8 +203,8 @@ fun ArViewContent(
                         structureBitmap?.let { bitmap ->
                             BillboardNode(
                                 bitmap = bitmap,
-                                widthMeters = 2.5f,
-                                position = Position(y = 0.5f),
+                                widthMeters = 5.0f,
+                                position = Position(y = 0.75f),
                                 cameraPositionProvider = cameraPositionProvider
                             ) {
                                 SideEffect {
@@ -225,28 +245,6 @@ fun ArViewContent(
             }
         }
 
-        // Lens Visual Filter (Cone effect)
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val width = size.width
-            val height = size.height
-
-            val path = Path().apply {
-                moveTo(width / 2, height)
-                lineTo(-width * 0.5f, -height * 0.2f)
-                lineTo(width * 1.5f, -height * 0.2f)
-                close()
-            }
-
-            drawPath(
-                path = path,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        selectedLensType.color.copy(alpha = 0.4f),
-                        selectedLensType.color.copy(alpha = 0.05f)
-                    )
-                )
-            )
-        }
 
         // --- TOP BAR ---
         Box(
